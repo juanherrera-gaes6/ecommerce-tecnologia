@@ -2,65 +2,53 @@ import './App.css';
 import { useEffect, useState } from 'react';
 
 function App() {
-
-  //Estados para el formulario
   const [nombre, setNombre] = useState("");
   const [precio, setPrecio] = useState("");
   const [stock, setStock] = useState("");
   const [categoria, setCategoria] = useState("");
   const [descripcion, setDescripcion] = useState("");
-
-  //Estados para lista de productos
   const [registros, setRegistros] = useState([]);
-
-  //Estados para saber si estamos editando
   const [editIndex, setEditIndex] = useState(null);
+  const [carrito, setCarrito] = useState([]);
 
-  //Cargar productos al iniciar
   useEffect(() => {
     cargarProductos();
-  }, [])
+  }, []);
 
-  //Funcion para cargar productos
   const cargarProductos = async () => {
     try {
       const response = await fetch('http://localhost:3001/productos');
       const data = await response.json();
       setRegistros(data);
     } catch (error) {
-      alert('error al cargar los productos');
+      alert('Error al cargar los productos');
     }
   };
 
-  //Funcion para guardar o actualizar el producto
   const registrarProductos = async (e) => {
     e.preventDefault();
     if (editIndex !== null) {
-      // Actualizar el producto existente
+      const producto = registros[editIndex];
       try {
-        const productos = registros[editIndex];
-        const response = await fetch(`http://localhost:3001/productos/${productos.id}`, {
+        const response = await fetch(`http://localhost:3001/productos/${producto.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ nombre, precio, stock, categoria, descripcion })
-
         });
 
         if (response.ok) {
           const nuevosRegistros = [...registros];
-          nuevosRegistros[editIndex] = { ...productos, nombre, precio, stock, categoria, descripcion };
+          nuevosRegistros[editIndex] = { ...producto, nombre, precio, stock, categoria, descripcion };
           setRegistros(nuevosRegistros);
           setEditIndex(null);
           alert('Producto actualizado correctamente');
         } else {
           alert('Error al actualizar el producto');
         }
-
-      } catch (error) {
-        alert('Error de conexion al actualizar el producto');
+      } catch {
+        alert('Error de conexión al actualizar el producto');
       }
     } else {
-      //Crear nuevo producto
       try {
         const response = await fetch('http://localhost:3001/productos', {
           method: 'POST',
@@ -75,48 +63,35 @@ function App() {
         } else {
           alert('Error al guardar producto');
         }
-      } catch (error) {
-        alert('Error de conexion al guardar el producto');
+      } catch {
+        alert('Error de conexión al guardar el producto');
       }
     }
 
-    //Limpiar el formulario
     setNombre("");
-    setPrecio(0);
-    setStock(0);
+    setPrecio("");
+    setStock("");
     setCategoria("");
     setDescripcion("");
   };
 
-  //Función eliminar producto cuando el usuario oprime el boton eliminar
-
   const eliminarRegistro = async (idx) => {
-    const productos = registros[idx]; // Obtenemos el empleado al eliminar por el indice
+    const producto = registros[idx];
     try {
-      const response = await fetch(`http://localhost:3001/productos/${productos.id}`, {
-        method: 'DELETE'  //Metodo HTTP para eliminar
+      const response = await fetch(`http://localhost:3001/productos/${producto.id}`, {
+        method: 'DELETE'
       });
 
       if (response.ok) {
-        setRegistros(registros.filter((_, i) => i !== idx)) //Quitamos el elemento con ese indice
-
-        if (editIndex === idx) {
-          setEditIndex(null);
-          setNombre("");
-          setPrecio(0);
-          setStock(0);
-          setCategoria("");
-          setDescripcion("");
-        }
+        setRegistros(registros.filter((_, i) => i !== idx));
         alert('Producto eliminado correctamente');
       } else {
         alert('Error al eliminar el producto');
       }
-    }
-    catch (error) {
+    } catch {
       alert('Error de conexión al eliminar');
     }
-  }
+  };
 
   const editarRegistro = (idx) => {
     const reg = registros[idx];
@@ -128,61 +103,83 @@ function App() {
     setEditIndex(idx);
   };
 
+  const agregarAlCarrito = (producto) => {
+    const existe = carrito.find((p) => p.id === producto.id);
+    if (!existe) setCarrito([...carrito, producto]);
+  };
+
+  const eliminarDelCarrito = (id) => {
+    setCarrito(carrito.filter((p) => p.id !== id));
+  };
+
+  const totalCarrito = carrito.reduce((acc, p) => acc + Number(p.precio), 0);
+
+  const crearOrden = () => {
+    if (carrito.length === 0) {
+      alert("El carrito está vacío");
+      return;
+    }
+
+    const orden = {
+      productos: carrito,
+      total: totalCarrito,
+      fecha: new Date().toLocaleString(),
+    };
+
+    console.log("🧾 Orden generada:", orden);
+    alert(`Orden creada exitosamente. Total: $${totalCarrito}`);
+    setCarrito([]);
+  };
+
   return (
     <div className="min-vh-100 bg-light">
-
-      {/* Header */}
       <header className="py-3 bg-primary shadow-sm">
         <h3 className="text-center text-white fw-bold">Tienda de Tecnología</h3>
       </header>
 
       <div className="container mt-4">
-
         <div className="alert alert-info shadow-sm text-center">
           <h5 className="mb-0">Bienvenido a la tienda de tecnología</h5>
         </div>
 
         <div className="row g-4">
-
           {/* Formulario */}
           <div className="col-md-6">
-            <div className="card shadow-sm h-100 border-0">
+            <div className="card shadow-sm border-0">
               <div className="card-body">
                 <h6 className="fw-bold mb-3 text-primary">
                   {editIndex !== null ? "Editar Producto" : "Añadir Producto"}
                 </h6>
 
                 <form onSubmit={registrarProductos}>
-
                   <div className="mb-3">
-                    <label className="form-label">Nombre del producto</label>
-                    <input className="form-control" value={nombre} onChange={e => setNombre(e.target.value)} required />
+                    <label className="form-label">Nombre</label>
+                    <input className="form-control" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label">Precio</label>
-                    <input type="number" className="form-control" value={precio} onChange={e => setPrecio(e.target.value)} required />
+                    <input type="number" className="form-control" value={precio} onChange={(e) => setPrecio(e.target.value)} required />
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label">Stock</label>
-                    <input type="number" className="form-control" value={stock} onChange={e => setStock(e.target.value)} required />
+                    <input type="number" className="form-control" value={stock} onChange={(e) => setStock(e.target.value)} required />
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label">Categoría</label>
-                    <input className="form-control" value={categoria} onChange={e => setCategoria(e.target.value)} required />
+                    <input className="form-control" value={categoria} onChange={(e) => setCategoria(e.target.value)} required />
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label">Descripción</label>
-                    <textarea rows="2" className="form-control" value={descripcion} onChange={e => setDescripcion(e.target.value)} required />
+                    <textarea className="form-control" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} required />
                   </div>
 
                   <button className="btn btn-primary w-100">
                     {editIndex !== null ? "Actualizar Producto" : "Agregar Producto"}
                   </button>
-
                 </form>
               </div>
             </div>
@@ -190,7 +187,7 @@ function App() {
 
           {/* Tabla */}
           <div className="col-md-6">
-            <div className="card shadow-sm h-100 border-0">
+            <div className="card shadow-sm border-0">
               <div className="card-body">
                 <h6 className="fw-bold mb-3 text-primary">Consultar Productos</h6>
 
@@ -213,41 +210,44 @@ function App() {
                           <td>${reg.precio}</td>
                           <td>{reg.stock}</td>
                           <td>{reg.categoria}</td>
-                          <td className="text-truncate" style={{ maxWidth: "120px" }}>{reg.descripcion}</td>
+                          <td>{reg.descripcion}</td>
                           <td>
-                            <button
-                              className="btn btn-sm btn-light border me-2 rounded-circle text-primary"
-                              onClick={() => editarRegistro(idx)}
-                              title="Editar"
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </button>
-
-                            <button
-                              className="btn btn-sm btn-light border rounded-circle text-danger"
-                              onClick={() => eliminarRegistro(idx)}
-                              title="Eliminar"
-                            >
-                              <i className="bi bi-trash"></i>
-                            </button>
+                            <button className="btn btn-sm btn-outline-success me-2" onClick={() => agregarAlCarrito(reg)}>🛒</button>
+                            <button className="btn btn-sm btn-outline-primary me-2" onClick={() => editarRegistro(idx)}>✏️</button>
+                            <button className="btn btn-sm btn-outline-danger" onClick={() => eliminarRegistro(idx)}>🗑️</button>
                           </td>
-
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
 
+                {/* 🛒 Carrito */}
+                <div className="mt-4">
+                  <h6 className="fw-bold text-primary">Carrito de Compras</h6>
+                  {carrito.length === 0 ? (
+                    <p>No hay productos en el carrito</p>
+                  ) : (
+                    <ul className="list-group">
+                      {carrito.map((p) => (
+                        <li key={p.id} className="list-group-item d-flex justify-content-between align-items-center">
+                          {p.nombre} - ${p.precio}
+                          <button className="btn btn-sm btn-danger" onClick={() => eliminarDelCarrito(p.id)}>X</button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <h6 className="mt-3">Total: ${totalCarrito}</h6>
+                  <button className="btn btn-success w-100 mt-2" onClick={crearOrden}>Crear Orden de Compra</button>
+                </div>
+
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-
   );
-
 }
 
 export default App;

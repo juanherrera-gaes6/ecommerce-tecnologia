@@ -1,70 +1,113 @@
-# Getting Started with Create React App
+# Sistema de Gestión de Productos de tecnología - Ecommerce
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplicación web Full Stack desarrollada con React, Node.js, Express y MySQL, diseñada para simular una página de tecnología.
 
-## Available Scripts
 
-In the project directory, you can run:
+## 📑 Contenido
 
-### `npm start`
+- [Descripción](#-descripción)
+- [Tecnologías Usadas](#-tecnologías-usadas)
+- [Instalación y Ejecución](#-instalación-y-ejecución)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+## 🧾 Descripción
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Permite la gestión completa de productos de una tienda (crear, listar, actualizar y eliminar registros).
+Además, incluye la simulación de las funcionalidades clave de un e-commerce: la capacidad de ingresar productos al inventario, agregarlos en un carrito de compras y finalizar el proceso con una orden de compra.
 
-### `npm run build`
+Cada producto cuenta con los siguientes atributos:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Nombre  
+- Precio  
+- Stock  
+- Categoría  
+- Descripción  
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Los usuarios pueden:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Crear productos nuevos.
+- Ver la lista completa de productos.
+- Editar productos existentes.
+- Eliminar productos.
+- Simular una orden de compra.
 
-### `npm run eject`
+## Tecnologías Usadas
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Frontend:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- React.js  
+- Html
+- css
+- bootstrap
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Backend:
+- Node.js  
+- Express.js  
+- MySQL2  
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Base de Datos:
+- MySQL
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🚀 Instalación y Ejecución
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Preparación de la Base de Datos (Backend) 💾
+Abre el gestor de bases de datos (MySQL).
 
-### Code Splitting
+Ejecuta el archivo de script SQL para crear la estructura de la base de datos (tablas de productos) y dejarla lista para la conexión.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+CREATE DATABASE ecommerce;
+use ecommerce;
+CREATE TABLE productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(200) NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL,
+    categoria VARCHAR(100) NOT NULL,
+    descripcion TEXT
+);
 
-### Analyzing the Bundle Size
+2. Inicio del Servidor (Backend) ⚙️
+El servidor provee los datos y la lógica de la aplicación.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Abre una terminal y navega a la carpeta server.
 
-### Making a Progressive Web App
+Ejecuta el comando para iniciar el servidor en modo desarrollo (npm run dev).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+(El servidor se pondrá en escucha, generalmente en un puerto como 3001).
 
-### Advanced Configuration
+3. Inicio de la Interfaz de Usuario (Frontend) 🖥️
+La interfaz de usuario de React permite la interacción.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Abre una segunda terminal y navega a la carpeta client.
 
-### Deployment
+Ejecuta el comando para iniciar la aplicación cliente (npm start).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+(Esto abrirá la aplicación en tu navegador, generalmente en http://localhost:3000).
 
-### `npm run build` fails to minify
+4. Simulación: Cargar Productos y Comprar 🛒
+Una vez que la página esté visible, realiza las siguientes acciones:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Registro de Productos:
+
+Ubica el formulario de registro.
+
+Llena todos los campos para crear al menos dos productos (Producto, Precio, Stock, Categoría, Descripción).
+
+Guarda los registros.
+
+Agregar al Carrito:
+
+Busca los productos que acabas de registrar en el listado de la tienda.
+
+Agrega una unidad de cada uno de ellos al Carrito de Compras.
+
+Crear Orden de Compra:
+
+Dirígete al carrito o a la página de checkout.
+
+Confirma la compra para simular la generación de la Orden de Compra, la cual debe acumular el precio total de los artículos.
+
+
